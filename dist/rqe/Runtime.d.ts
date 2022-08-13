@@ -1,0 +1,13 @@
+import { QueryPlan } from './Plan';
+import { Stream } from './Stream';
+import { Step } from './Step';
+import { Graph } from './Graph';
+import { Query, QueryParameters } from './Query';
+import { QueryTuple } from './QueryTuple';
+import { PointMatch } from './FindMatch';
+import { QueryExecutionContext } from './Graph';
+export declare function planAndPerformQuery(graph: Graph, query: Query, parameters: QueryParameters): Stream;
+export declare function performQuery(plan: QueryPlan, parameters: QueryParameters, context: QueryExecutionContext): Stream;
+export declare function runQueryWithProvider(graph: Graph, providerId: string, query: Query, input: Stream): Stream;
+export declare function findAndCallMountPoint(step: Step, tuple: QueryTuple, input: Stream, output: Stream): void;
+export declare function callMountPoint(step: Step, match: PointMatch, tuple: QueryTuple, input: Stream, output: Stream): void;

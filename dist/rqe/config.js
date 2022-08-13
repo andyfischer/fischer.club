@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SocketVerboseLog = exports.TaggedValueErrorOnUnknownTag = exports.EnableSerializableTest = exports.StackTraceAllConsoleLogs = exports.EnableWarningOnUnserializableData = exports.StreamValidation = exports.SocketClientCheckOutgoingData = exports.StreamSuperDuperTrace = exports.StreamSuperTrace = exports.StreamOverflowCheckMs = exports.StreamOverflowCheck = exports.MemoryTableExtraErrorMessages = exports.WarnOnMultipleMatches = exports.VerboseLogFilteredEmptyValue = exports.BreakOnMatchFailure = exports.VerboseFunctionOutputFiltering = exports.VerboseTraceFindMatch = void 0;
+exports.VerboseTraceFindMatch = false;
+exports.VerboseFunctionOutputFiltering = false;
+exports.BreakOnMatchFailure = false;
+exports.VerboseLogFilteredEmptyValue = false;
+exports.WarnOnMultipleMatches = false;
+exports.MemoryTableExtraErrorMessages = true;
+exports.StreamOverflowCheck = true;
+exports.StreamOverflowCheckMs = 10000;
+exports.StreamSuperTrace = false;
+exports.StreamSuperDuperTrace = false;
+exports.SocketClientCheckOutgoingData = true;
+exports.StreamValidation = true;
+exports.EnableWarningOnUnserializableData = true;
+exports.StackTraceAllConsoleLogs = false;
+exports.EnableSerializableTest = true;
+exports.TaggedValueErrorOnUnknownTag = false;
+exports.SocketVerboseLog = false;
+//# sourceMappingURL=config.js.map

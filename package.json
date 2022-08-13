@@ -1,0 +1,26 @@
+{
+  "name": "fischer.club",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andyfischer/fischer.club.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andyfischer/fischer.club/issues"
+  },
+  "homepage": "https://github.com/andyfischer/fischer.club#readme",
+  "dependencies": {
+    "@types/node": "^18.7.3",
+    "glob": "^8.0.3",
+    "kdljs": "^0.1.4",
+    "source-map-support": "^0.5.21",
+    "ws": "^8.8.1"
+  }
+}

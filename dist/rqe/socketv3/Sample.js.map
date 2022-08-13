@@ -1,0 +1,1 @@
+{"version":3,"file":"Sample.js","sourceRoot":"","sources":["../../../src/rqe/socketv3/Sample.ts"],"names":[],"mappings":";;;AACA,6CAAyC;AACzC,uDAAmD;AAEnD,SAAgB,iBAAiB;IAC7B,MAAM,UAAU,GAAG,IAAI,uBAAU,CAAC;QAC9B,QAAQ,EAAE,IAAI,iCAAe,CAAC;YAC1B,UAAU;gBACN,OAAO,IAAI,SAAS,CAAC,qBAAqB,CAAC,CAAC;YAChD,CAAC;SACJ,CAAC;QACF,MAAM,EAAE,EAAE;KACb,CAAC,CAAC;AACP,CAAC;AATD,8CASC"}

@@ -1,0 +1,22 @@
+
+
+# Old Files #
+
+[undo]
+
+bin/fs -c "set remote/42940 mc undo"
+
+[house]
+
+bin/fs -c "set remote/42940 mc predef/vincentHouse x/144 y/64 z/42"
+
+# example traffic #
+
+Writing message to player: %s {{1cff9220-cfbe-4735-b69a-8ffbdbdfb913 commandRequest 1} {/setblock 0 86 0 gold_block 0 replace 1}}
+
+Player write: %s {"header":{"requestId":"1cff9220-cfbe-4735-b69a-8ffbdbdfb913","messagePurpose":"commandRequest","version":1},"body":{"commandLine":"/setblock 0 86 0 gold_block 0 replace","version":1}}
+
+9��LmDmk{�#A�&�-�ÙmrL�/�z���D~�����Y$�D�qw�M� F 0+�6;�DN�^'ϿN�c7�cx���Uz�LkyZ=��������P����~Z�֋�ڠ��_������/���'+yU_�_��3�MUoT#��decrypted payload: {"body":{"statusCode":-2147352576,"statusMessage":"The block couldn't be placed"},"header":{"messagePurpose":"commandResponse","requestId":"1cff9220-cfbe-4735-b69a-8ffbdbdfb913","version":1}}
+
+got packet: {"body":{"statusCode":-2147352576,"statusMessage":"The block couldn't be placed"},"header":{"messagePurpose":"commandResponse","requestId":"1cff9220-cfbe-4735-b69a-8ffbdbdfb913","version":1}}
+

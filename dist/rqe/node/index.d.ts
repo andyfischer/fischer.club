@@ -1,0 +1,1 @@
+export { runCommandLineProcess } from './CommandLineApp';

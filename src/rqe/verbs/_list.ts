@@ -20,7 +20,7 @@ import { rate } from './rate'
 import { rename } from './rename'
 import { reverse } from './reverse'
 import { run_query_with_provider } from './run_query_with_provider'
-// import { save_to_csv } from './save_to_csv'
+import { save_to_csv } from './save_to_csv'
 import { then } from './then'
 import { trace } from './trace'
 import { to_csv } from './to_csv'
@@ -53,7 +53,7 @@ function init() {
         rename,
         reverse,
         run_query_with_provider,
-//         save_to_csv,
+        save_to_csv,
         then,
         to_csv,
         trace,
