@@ -1,8 +1,11 @@
 
 import ws from 'ws'
+import HTTP from 'http'
+import express from 'express'
 import { IDSource } from '../rqe/utils/IDSource'
-import { newTable, func } from '../rqe'
+import { newTable, func, query } from '../rqe'
 import { runCommandLineProcess } from '../rqe/node'
+import cors from 'cors'
 
 const connections = newTable<{ id: string, ws: any, send: (msg) => void }>({
     funcs: [
@@ -12,10 +15,44 @@ const connections = newTable<{ id: string, ws: any, send: (msg) => void }>({
 
 const nextRequestId = new IDSource('request-');
 
-function startSocketServer() {
-    const wsserver = new ws.Server({
-        port: 4300
+function setupWebServer() {
+
+    const webServer = express();
+    webServer.use(cors({ origin: true }));
+    webServer.use(express.json());
+
+    function reply(res, status, data) {
+        res.status(status);
+        res.contentType('application/json');
+        res.end(JSON.stringify(data));
+    }
+
+    webServer.post('/run', (req, res) => {
+
+        console.log('body:', req.body);
+
+        const { commands } = req.body;
+        for (const cmd of commands)
+            query('send $cmd', { cmd });
+
+        res.sendStatus(200);
     });
+
+    webServer.use((req, res, next) => {
+        reply(res, 404, {});
+    });
+
+    return webServer;
+}
+
+function startServer() {
+
+    const server = HTTP.createServer();
+
+    const wsserver = new ws.Server({
+        server,
+    });
+
     const nextConnectionId = new IDSource();
 
     wsserver.on('connection', ws => {
@@ -44,16 +81,20 @@ function startSocketServer() {
         ws.addEventListener('close', onClose);
     });
 
-    return wsserver;
+    server.on('request', setupWebServer());
+    server.listen(4300);
+
+    return server;
 }
 
-const server = startSocketServer();
+const server = startServer();
 
 func('[v2] send $cmd', (cmd) => {
 
-    let anyFound = null;
+    let anyFound = false;
 
     for (const { send } of connections.scan()) {
+        anyFound = true;
         const requestId = nextRequestId.take();
         send({
             header: {
@@ -66,6 +107,10 @@ func('[v2] send $cmd', (cmd) => {
                 version: 1,
             }
         });
+    }
+
+    if (!anyFound) {
+        console.warn("warning: no connected server to run: " + cmd);
     }
 });
 

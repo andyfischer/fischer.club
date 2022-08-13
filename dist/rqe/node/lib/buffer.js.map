@@ -1,1 +1,0 @@
-{"version":3,"file":"buffer.js","sourceRoot":"","sources":["../../../../src/rqe/node/lib/buffer.ts"],"names":[],"mappings":";;AACA,mDAAwC;AAExC,IAAA,kBAAI,EAAC,eAAe,EAAE,CAAC,MAAM,EAAE,EAAE;IAC7B,MAAM,MAAM,GAAG,MAAM,CAAC,IAAI,CAAC,MAAM,EAAE,QAAQ,CAAC,CAAC;IAC7C,OAAO,EAAE,GAAG,EAAE,MAAM,CAAC,QAAQ,CAAC,KAAK,CAAC,EAAE,CAAA;AAC1C,CAAC,CAAC,CAAC"}
