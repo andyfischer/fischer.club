@@ -83,6 +83,7 @@ function startServer() {
 
     server.on('request', setupWebServer());
     server.listen(4300);
+    console.log('started listening on port: 4300');
 
     return server;
 }
