@@ -8,7 +8,7 @@ import { runCommandLineProcess } from '../rqe/node'
 import cors from 'cors'
 import { ConcurrencyPool } from '../rqe/utils/ConcurrencyPool'
 
-const connections = newTable<{ id: string, ws: any, send: (msg) => void }>({
+const connections = newTable<{ id: string, ws: any, connection: ServerConnection }>({
     funcs: [
         'id ->'
     ]
@@ -46,6 +46,103 @@ function setupWebServer() {
     return webServer;
 }
 
+class RateLimiter {
+    period: number
+    maxPerPeriod: number
+    
+    periodStartedAt: number
+    timeout: any
+
+    constructor({ period, maxPerPeriod }) {
+        this.period = period;
+        this.maxPerPeriod = maxPerPeriod;
+    }
+
+    async wait() {
+    }
+}
+
+class PauseTimer {
+
+    timeout: any
+
+    resolveWait: any
+    waitPromise: any
+
+    startPause(ms) {
+        if (this.timeout)
+            clearTimeout(this.timeout);
+
+        if (!this.resolveWait) {
+            this.waitPromise = new Promise(resolveWait => {
+                this.resolveWait = resolveWait;
+            });
+        }
+
+        this.timeout = setTimeout((() => {
+            const resolveWait = this.resolveWait;
+
+            this.resolveWait = null;
+            this.waitPromise = null;
+
+            if (resolveWait)
+                resolveWait();
+        }), ms);
+    }
+
+    async maybeWait() {
+        if (this.waitPromise) {
+            await this.waitPromise;
+        }
+    }
+}
+
+class ServerConnection {
+    outgoingCommands = new Map();
+    send: any
+    pauseTimer = new PauseTimer();
+
+    constructor(send: any) {
+        this.send = send;
+    }
+
+    onMessage(message) {
+        const statusMessage = message?.body?.statusMessage;
+        const requestId = message?.header?.requestId;
+        if (statusMessage && statusMessage.indexOf("Too many commands have been requested") !== -1) {
+            console.log("server replied 'too many commands'");
+            this.pauseTimer.startPause(100);
+
+            const command = this.outgoingCommands.get(requestId);
+            console.log('retrying: ', command);
+            this.sendCommand(command);
+        }
+
+        this.outgoingCommands.delete(requestId);
+    }
+
+    async sendCommand(cmd) {
+
+        const requestId = nextRequestId.take();
+
+        await this.pauseTimer.maybeWait();
+
+        this.send({
+            header: {
+                requestId,
+                messagePurpose: 'commandRequest',
+                version: 1,
+            },
+            body: {
+                commandLine: cmd,
+                version: 1,
+            }
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 1));
+    }
+}
+
 function startServer() {
 
     const server = HTTP.createServer();
@@ -65,9 +162,11 @@ function startServer() {
             ws.send(JSON.stringify(msg));
         }
 
+        const connection = new ServerConnection(send);
+
         const onMessage = (evt) => {
             const msg = JSON.parse(evt.data);
-
+            connection.onMessage(msg);
             console.log('got message: ', msg);
         }
 
@@ -76,7 +175,7 @@ function startServer() {
             connections.delete({ id });
         }
 
-        connections.put({ id, ws, send });
+        connections.put({ id, ws, connection });
 
         ws.addEventListener('message', onMessage);
         ws.addEventListener('close', onClose);
@@ -90,36 +189,18 @@ function startServer() {
 }
 
 const server = startServer();
-const pool = new ConcurrencyPool(10);
 
 func('[v2] send $cmd', async (cmd) => {
-
     let anyFound = false;
 
-    await pool.run(async () => {
-
-    for (const { send } of connections.scan()) {
+    for (const { connection } of connections.scan()) {
         anyFound = true;
-        const requestId = nextRequestId.take();
-        send({
-            header: {
-                requestId,
-                messagePurpose: 'commandRequest',
-                version: 1,
-            },
-            body: {
-                commandLine: cmd,
-                version: 1,
-            }
-        });
+        connection.sendCommand(cmd);
     }
-
-    await new Promise(resolve => setTimeout(resolve, 1));
 
     if (!anyFound) {
         console.warn("warning: no connected server to run: " + cmd);
     }
-    });
 });
 
 runCommandLineProcess({
