@@ -6,6 +6,7 @@ import { IDSource } from '../rqe/utils/IDSource'
 import { newTable, func, query } from '../rqe'
 import { runCommandLineProcess } from '../rqe/node'
 import cors from 'cors'
+import { ConcurrencyPool } from '../rqe/utils/ConcurrencyPool'
 
 const connections = newTable<{ id: string, ws: any, send: (msg) => void }>({
     funcs: [
@@ -89,10 +90,13 @@ function startServer() {
 }
 
 const server = startServer();
+const pool = new ConcurrencyPool(100);
 
-func('[v2] send $cmd', (cmd) => {
+func('[v2] send $cmd', async (cmd) => {
 
     let anyFound = false;
+
+    await pool.run(async () => {
 
     for (const { send } of connections.scan()) {
         anyFound = true;
@@ -110,9 +114,12 @@ func('[v2] send $cmd', (cmd) => {
         });
     }
 
+    await new Promise(resolve => setTimeout(resolve, 1));
+
     if (!anyFound) {
         console.warn("warning: no connected server to run: " + cmd);
     }
+    });
 });
 
 runCommandLineProcess({
