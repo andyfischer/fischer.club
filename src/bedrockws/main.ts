@@ -28,13 +28,13 @@ function setupWebServer() {
         res.end(JSON.stringify(data));
     }
 
-    webServer.post('/run', (req, res) => {
-
-        console.log('body:', req.body);
+    webServer.post('/run', async (req, res) => {
 
         const { commands } = req.body;
-        for (const cmd of commands)
+        for (const cmd of commands) {
+            await new Promise(resolve => setTimeout(resolve, 1));
             query('send $cmd', { cmd });
+        }
 
         res.sendStatus(200);
     });
@@ -139,7 +139,6 @@ class ServerConnection {
             }
         });
 
-        await new Promise(resolve => setTimeout(resolve, 1));
     }
 }
 
