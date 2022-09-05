@@ -90,7 +90,7 @@ function startServer() {
 }
 
 const server = startServer();
-const pool = new ConcurrencyPool(100);
+const pool = new ConcurrencyPool(10);
 
 func('[v2] send $cmd', async (cmd) => {
 
