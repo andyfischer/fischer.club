@@ -187,6 +187,7 @@ class ServerConnection {
         const requestId = nextRequestId.take();
 
         await this.pauseTimer.maybeWait();
+        await this.rateLimiter.wait();
 
         this.send({
             header: {
