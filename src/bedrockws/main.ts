@@ -71,6 +71,7 @@ class RateLimiter {
         this.countThisPeriod++;
 
         if (this.countThisPeriod > this.maxPerPeriod) {
+            console.log('RateLimiter - count too high at ', this.countThisPeriod);
             let resolve;
 
             let promise = new Promise(r => {
@@ -82,6 +83,8 @@ class RateLimiter {
             await promise;
             return;
         }
+
+        console.log('RateLimiter - no limit');
     }
 
     maybePrepareTimeout() {
@@ -161,7 +164,7 @@ class ServerConnection {
     outgoingCommands = new Map();
     send: any
     pauseTimer = new PauseTimer();
-    rateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 20});
+    rateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 10});
 
     constructor(send: any) {
         this.send = send;
@@ -176,7 +179,10 @@ class ServerConnection {
 
             const command = this.outgoingCommands.get(requestId);
             console.log('retrying: ', command);
-            this.sendCommand(command);
+
+            setTimeout((() => {
+                this.sendCommand(command);
+            }), 100);
         }
 
         this.outgoingCommands.delete(requestId);
