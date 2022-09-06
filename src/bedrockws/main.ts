@@ -164,7 +164,7 @@ class ServerConnection {
     outgoingCommands = new Map();
     send: any
     pauseTimer = new PauseTimer();
-    rateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 10});
+    rateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 50});
 
     constructor(send: any) {
         this.send = send;
