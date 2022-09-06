@@ -173,6 +173,9 @@ class ServerConnection {
     onMessage(message) {
         const statusMessage = message?.body?.statusMessage;
         const requestId = message?.header?.requestId;
+
+        console.log('reply from minecraft: ', statusMessage || message);
+
         if (statusMessage && statusMessage.indexOf("Too many commands have been requested") !== -1) {
             console.log("server replied 'too many commands'");
             this.pauseTimer.startPause(100);
@@ -234,7 +237,6 @@ function startServer() {
         const onMessage = (evt) => {
             const msg = JSON.parse(evt.data);
             connection.onMessage(msg);
-            console.log('got message: ', msg);
         }
 
         const onClose = () => {
