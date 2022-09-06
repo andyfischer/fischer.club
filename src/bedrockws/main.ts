@@ -258,7 +258,7 @@ function startServer() {
 }
 
 const server = startServer();
-const TestRateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 5 });
+const TestRateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 50 });
 
 func('[v2] test_rate_limiter $count', async (count) => {
     const testId = randomHex(5);
