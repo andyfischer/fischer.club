@@ -7,6 +7,7 @@ import { newTable, func, query } from '../rqe'
 import { runCommandLineProcess } from '../rqe/node'
 import cors from 'cors'
 import { ConcurrencyPool } from '../rqe/utils/ConcurrencyPool'
+import { randomHex } from '../rqe/utils/randomHex'
 
 const connections = newTable<{ id: string, ws: any, connection: ServerConnection }>({
     funcs: [
@@ -49,9 +50,16 @@ function setupWebServer() {
 class RateLimiter {
     period: number
     maxPerPeriod: number
-    
-    periodStartedAt: number
-    timeout: any
+
+    countThisPeriod: number = 0
+    periodStartedAt: number = null
+
+    thisPeriodTimeout: any
+
+    blockedCalls: {
+        resolve: any
+        promise: any
+    }[] = []
 
     constructor({ period, maxPerPeriod }) {
         this.period = period;
@@ -59,6 +67,58 @@ class RateLimiter {
     }
 
     async wait() {
+        this.maybePrepareTimeout();
+        this.countThisPeriod++;
+
+        if (this.countThisPeriod > this.maxPerPeriod) {
+            let resolve;
+
+            let promise = new Promise(r => {
+                resolve = r;
+            });
+
+            this.blockedCalls.push({ resolve, promise });
+
+            await promise;
+            return;
+        }
+    }
+
+    maybePrepareTimeout() {
+        if (!this.thisPeriodTimeout) {
+            this.periodStartedAt = Date.now();
+            this.thisPeriodTimeout = setTimeout(() => this.onPeriodEnd(), this.period);
+        }
+    }
+
+    onPeriodEnd() {
+        this.thisPeriodTimeout = null;
+        this.periodStartedAt = null;
+        this.countThisPeriod = 0;
+
+        if (this.blockedCalls.length > 0) {
+
+            let callsToResolveNow;
+
+            if (this.blockedCalls.length > this.maxPerPeriod) {
+                callsToResolveNow = this.blockedCalls.slice(0, this.maxPerPeriod);
+                this.blockedCalls = this.blockedCalls.slice(this.maxPerPeriod);
+                this.maybePrepareTimeout();
+            } else {
+                callsToResolveNow = this.blockedCalls;
+                this.blockedCalls = [];
+            }
+
+            for (const call of callsToResolveNow) {
+                this.countThisPeriod++;
+
+                try {
+                    call.resolve();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
     }
 }
 
@@ -101,6 +161,7 @@ class ServerConnection {
     outgoingCommands = new Map();
     send: any
     pauseTimer = new PauseTimer();
+    rateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 20});
 
     constructor(send: any) {
         this.send = send;
@@ -188,6 +249,17 @@ function startServer() {
 }
 
 const server = startServer();
+const TestRateLimiter = new RateLimiter({ period: 1000, maxPerPeriod: 5 });
+
+func('[v2] test_rate_limiter $count', async (count) => {
+    const testId = randomHex(5);
+
+    for (let i=0; i < count; i++) {
+        await TestRateLimiter.wait();
+        console.log(`firing test ${testId}, i = ${i}`);
+    }
+});
+
 
 func('[v2] send $cmd', async (cmd) => {
     let anyFound = false;
@@ -206,4 +278,6 @@ runCommandLineProcess({
     startRepl: {
         prompt: 'bedrockws~ '
     }
-})
+});
+
+
