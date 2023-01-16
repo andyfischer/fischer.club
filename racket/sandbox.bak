@@ -21,29 +21,14 @@
 (define (set-blocks blocks block_type change_type)
   (for/list ([block blocks])
     (let ([x (list-ref block 0)] [y (list-ref block 1)] [z (list-ref block 2)])
-      (format "/setblock ~v ~v ~v ~a 0 ~a" x y z block_type change_type)
+      (format "/setblock ~v ~v ~v ~v 0 ~v" x y z block_type change_type)
       )))
 
 
-(define (cube x1 y1 z1 x2 y2 z2)
-  (append* (append* (for/list ([x (in-range x1 x2)])
-             (for/list ([y (in-range y1 y2)])
-               (for/list([z (in-range z1 z2)])
-               (list x y z)))))))
-(define (floor x1 z1 x2 z2 y)
-(append* (for/list ([x (in-range x1 x2)])
-          (for/list ([z (in-range z1 z2)])
-            (list x y z)))))
-            
-(define (wallx x1 y1 x2 y2 z)
+(define (floor x1 y1 x2 y2 z)
   (append* (for/list ([x (in-range x1 x2)])
              (for/list ([y (in-range y1 y2)])
                (list x y z)))))
-(define (wallz z1 y1 z2 y2 x)
-  (append* (for/list ([z (in-range z1 z2)])
-             (for/list ([y (in-range y1 y2)])
-               (list x y z)))))
-  
 
 ; (run-command "/setblock 183 88 -70 command_block 0 replace")
 ; (set-block 183 88 -70 "command_block" "replace")
@@ -58,5 +43,3 @@
 ; /tp <destination: x y z> [y-rot: int] [x-rot: int]
 ; /tp <victim: target> <destination: target>
 ; /tp <victim: target> <destination: x y z> [y-rot: int] [x-rot: int]
-
-; (run-commands (set-blocks(cube -40 78 -209 -30 88 -199) 'diamond_ore 'replace))
